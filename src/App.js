@@ -1,110 +1,115 @@
-import logo from "./logo.svg";
-import "./App.css";
+import { useState } from "react";
 
-function App() {
+function Square({ value, onSquareClick }) {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <button className="square" onClick={onSquareClick}>
+      {value}
+    </button>
+  );
+}
+
+function Board({ xIsNext, squares, onPlay }) {
+  const winner = calculateWinner(squares);
+  let status;
+  if (winner) {
+    status = "Winner: " + winner;
+  } else {
+    status = "Next player: " + (xIsNext ? "X" : "O");
+  }
+
+  function handleClick(i) {
+    if (squares[i] || calculateWinner(squares)) {
+      return;
+    }
+    const nextSquares = squares.slice();
+    if (xIsNext) {
+      nextSquares[i] = "X";
+    } else {
+      nextSquares[i] = "O";
+    }
+    onPlay(nextSquares);
+  }
+
+  return (
+    <>
+      <div className="status">{status}</div>
+      <div className="board-row">
+        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
+        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
+        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
+      </div>
+      <div className="board-row">
+        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
+        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
+        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
+      </div>
+      <div className="board-row">
+        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
+        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
+        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
+      </div>
+    </>
+  );
+}
+
+export default function Game() {
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [currentMove, setCurrentMove] = useState(0);
+  const xIsNext = currentMove % 2 === 0;
+  const currentSquares = history[currentMove];
+
+  function handlePlay(nextSquares) {
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
+  }
+
+  function jumpTo(nextMove) {
+    setCurrentMove(nextMove);
+  }
+
+  const moves = history.map((squares, move) => {
+    let description;
+    if (move > 0) {
+      description = "Go to move #" + move;
+    } else {
+      description = "Go to game start";
+    }
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  });
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+      </div>
+      <div className="game-info">
+        <ol>{moves}</ol>
+      </div>
     </div>
   );
 }
 
-// Define players
-const playerX = "X";
-const playerO = "O";
-
-// Initialize game state
-let currentPlayer = playerX;
-let gameBoard = ["", "", "", "", "", "", "", "", ""];
-let gameActive = true;
-
-// Function to handle cell clicks
-function handleClick(cellIndex) {
-  console.log("clicked " + cellIndex);
-  // Check if the cell is empty and the game is still active
-  if (gameBoard[cellIndex] === "" && gameActive) {
-    // Update the game board with the current player's symbol
-    gameBoard[cellIndex] = currentPlayer;
-
-    // Update the cell's content on the page
-    document.getElementsByClassName("cell")[cellIndex].innerText =
-      currentPlayer;
-
-    // Check for a winner or a tie
-    if (checkWinner() === currentPlayer) {
-      alert(`Player ${currentPlayer} wins!`);
-      resetGame();
-      gameActive = false;
-    } else if (checkTie()) {
-      alert("It's a tie!");
-      gameActive = false;
-    } else {
-      // Switch to the next player
-      currentPlayer = currentPlayer === playerX ? playerO : playerX;
-    }
-  }
-}
-
-// Function to reset the game
-function resetGame() {
-  console.log("Resetting game");
-  // Clear the game board
-  gameBoard = ["", "", "", "", "", "", "", "", ""];
-
-  // Reset cell content on the page
-  const cells = document.getElementsByClassName("cell");
-  for (const cell of cells) {
-    cell.innerText = "";
-  }
-
-  // Reset game state
-  currentPlayer = playerX;
-  gameActive = true;
-}
-
-// Function to check for a winner
-function checkWinner() {
-  const winPatterns = [
+function calculateWinner(squares) {
+  const lines = [
     [0, 1, 2],
     [3, 4, 5],
-    [6, 7, 8], // Rows
+    [6, 7, 8],
     [0, 3, 6],
     [1, 4, 7],
-    [2, 5, 8], // Columns
+    [2, 5, 8],
     [0, 4, 8],
-    [2, 4, 6], // Diagonals
+    [2, 4, 6],
   ];
-
-  for (const pattern of winPatterns) {
-    const [a, b, c] = pattern;
-    if (
-      gameBoard[a] !== "" &&
-      gameBoard[a] === gameBoard[b] &&
-      gameBoard[a] === gameBoard[c]
-    ) {
-      return gameBoard[a]; // Return the winning player's symbol
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
     }
   }
-
-  return null; // No winner yet
+  return null;
 }
-
-// Function to check for a tie
-function checkTie() {
-  return gameBoard.every((cell) => cell !== ""); // Check if all cells are filled
-}
-
-export default App;
