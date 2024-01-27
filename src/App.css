@@ -1,38 +1,26 @@
-.App {
-  text-align: center;
+/* Ensures that the padding and border are included in the element's total width and height */
+html,
+body {
+  box-sizing: border-box;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
+/* Gameboard styles */
+.game {
+  /* Center the gameboard */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
+  /* Set the gameboard size relative to the screen size, accounting for padding */
+  width: 70%; /* 100% - 2 * 15% padding */
+  height: 70%; /* Same as width to maintain aspect ratio */
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  /* Additional styling for the gameboard (optional) */
+  background-color: #f0f0f0; /* Example background color */
+  border: 1px solid #ccc; /* Example border */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Example shadow */
 }
